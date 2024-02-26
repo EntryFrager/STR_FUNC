@@ -1,0 +1,205 @@
+Turbo Assembler	 Version 4.1	    02/22/24 01:13:59	    Page 1
+str_func.asm
+
+
+
+      1	0000			     .model tiny
+      2	0000			     .code
+      3				     .186
+      4				     org 100h
+      5
+      6
+      7	0100			     Start:
+      8	0100  E8 0003				     Call Main
+      9	0103  E9 0094				     jmp Exit
+     10
+     11
+     12	0106			     Main proc
+     13	0106  BB 019Fr				     mov bx, offset STRING_1
+     14	0109  BE 01A4r				     mov si, offset STRING_2
+     15
+     16	010C  53				     push bx
+     17	010D  56				     push si
+     18	010E  6A 03				     push 3
+     19
+     20	0110  E8 0001				     Call MyMemCmp
+     21
+     22	0113  C3				     ret
+     23	0114					     endp
+     24
+     25
+     26	0114			     MyMemCmp	     proc
+     27	0114  55				     push bp
+     28	0115  8B EC				     mov bp, sp
+     29
+     30	0117  8B 76 08				     mov si, [bp + 8]
+     31	011A  8B 7E 06				     mov di, [bp + 6]
+     32	011D  8B 4E 04				     mov cx, [bp + 4]
+     33
+     34	0120  B8 0000				     mov ax, 0
+     35
+     36	0123				     again:
+     37	0123  02 04				     add al, [si]
+     38	0125  2A 05				     sub al, [di]
+     39	0127  E2 FA				     loop again
+     40
+     41	0129  5D				     pop bp
+     42	012A  C2 0006				     ret 6
+     43	012D					     endp
+     44
+     45
+     46	012D			     MyMemCpy	     proc
+     47	012D  55				     push bp
+     48	012E  8B EC				     mov bp, sp
+     49
+     50	0130  8B 76 08				     mov si, [bp + 8]
+     51	0133  8B 7E 06				     mov di, [bp + 6]
+     52	0136  8B 4E 04				     mov cx, [bp + 4]
+     53
+     54	0139  F3> A4				     rep movsb
+     55
+     56	013B  8B 46 06				     mov ax, [bp + 6]
+     57
+Turbo Assembler	 Version 4.1	    02/22/24 01:13:59	    Page 2
+str_func.asm
+
+
+
+     58	013E  5D				     pop bp
+     59	013F  C2 0006				     ret 6
+     60	0142					     endp
+     61
+     62
+     63	0142			     MyMemSet	     proc
+     64	0142  55				     push bp
+     65	0143  8B EC				     mov bp, sp
+     66
+     67	0145  8B 7E 08				     mov di, [bp + 8]
+     68	0148  8A 46 06				     mov al, [bp + 6]
+     69	014B  8B 4E 04				     mov cx, [bp + 4]
+     70
+     71	014E  F3> AA				     rep stosb
+     72
+     73	0150  8B 46 08				     mov ax, [bp + 8]
+     74
+     75	0153  5D				     pop bp
+     76	0154  C2 0006				     ret 6
+     77	0157					     endp
+     78
+     79
+     80	0157			     MyMemChr	     proc
+     81	0157  55				     push bp
+     82	0158  8B EC				     mov bp, sp
+     83
+     84	015A  8B 7E 08				     mov di, [bp + 8]
+     85	015D  8A 46 06				     mov al, [bp + 6]
+     86	0160  8B 4E 04				     mov cx, [bp + 4]
+     87
+     88	0163  F2> AE				     repne scasb
+     89
+     90	0165  83 F9 00				     cmp cx, 0
+     91	0168  74 03				     je	cmp_last_byte
+     92
+     93	016A  EB 0D 90				     jmp ok
+     94
+     95	016D				     cmp_last_byte:
+     96	016D  26: 3A 45	FF			     cmp al, es:[di - 1]
+     97	0171  74 06				     je	ok
+     98
+     99	0173  B8 0000				     mov ax, 0
+    100
+    101	0176  EB 06 90				     jmp ret_func
+    102
+    103	0179				     ok:
+    104	0179  83 EF 01				     sub di, 1
+    105	017C  8B C7				     mov ax, di
+    106
+    107	017E				     ret_func:
+    108	017E  5D				     pop bp
+    109	017F  C2 0006				     ret 6
+    110	0182					     endp
+    111
+    112
+    113	0182			     MyStrLen	     proc
+    114	0182  55				     push bp
+Turbo Assembler	 Version 4.1	    02/22/24 01:13:59	    Page 3
+str_func.asm
+
+
+
+    115	0183  8B EC				     mov bp, sp
+    116
+    117	0185  8B 7E 04				     mov di, [bp + 4]
+    118
+    119	0188  FC				     cld
+    120
+    121	0189  B0 24				     mov al, '$'
+    122
+    123	018B  33 C9				     xor cx, cx
+    124
+    125	018D  F2> AE				     repne scasb
+    126	018F  F7 D1				     not cx
+    127
+    128	0191  83 E9 01				     sub cx, 1
+    129	0194  8B C1				     mov ax, cx
+    130
+    131	0196  5D				     pop bp
+    132	0197  C2 0002				     ret 2
+    133	019A					     endp
+    134
+    135
+    136	019A			     Exit:
+    137	019A  B8 4C00				     mov ax, 4c00h
+    138	019D  CD 21				     int 21h
+    139
+    140
+    141	019F  6D 65 6F 77 24	     STRING_1 db "meow$"
+    142	01A4  6D 65 6F 77 24	     STRING_2 db "meow$"
+    143
+    144
+    145				     end Start
+Turbo Assembler	 Version 4.1	    02/22/24 01:13:59	    Page 4
+Symbol Table
+
+
+
+
+Symbol Name			  Type	 Value
+
+??DATE				  Text	 "02/22/24"
+??FILENAME			  Text	 "str_func"
+??TIME				  Text	 "01:13:59"
+??VERSION			  Number 040A
+@32BIT				  Text	 0
+@CODE				  Text	 DGROUP
+@CODESIZE			  Text	 0
+@CPU				  Text	 0103H
+@CURSEG				  Text	 _TEXT
+@DATA				  Text	 DGROUP
+@DATASIZE			  Text	 0
+@FILENAME			  Text	 STR_FUNC
+@INTERFACE			  Text	 000H
+@MODEL				  Text	 1
+@STACK				  Text	 DGROUP
+@WORDSIZE			  Text	 2
+AGAIN				  Near	 DGROUP:0123
+CMP_LAST_BYTE			  Near	 DGROUP:016D
+EXIT				  Near	 DGROUP:019A
+MAIN				  Near	 DGROUP:0106
+MYMEMCHR			  Near	 DGROUP:0157
+MYMEMCMP			  Near	 DGROUP:0114
+MYMEMCPY			  Near	 DGROUP:012D
+MYMEMSET			  Near	 DGROUP:0142
+MYSTRLEN			  Near	 DGROUP:0182
+OK				  Near	 DGROUP:0179
+RET_FUNC			  Near	 DGROUP:017E
+START				  Near	 DGROUP:0100
+STRING_1			  Byte	 DGROUP:019F
+STRING_2			  Byte	 DGROUP:01A4
+
+Groups & Segments		  Bit Size Align  Combine Class
+
+DGROUP				  Group
+  _DATA				  16  0000 Word	  Public  DATA
+  _TEXT				  16  01A9 Word	  Public  CODE
+
